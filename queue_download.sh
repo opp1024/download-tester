@@ -5,10 +5,10 @@ count="$1"
 echo "--- 脚本将执行 $count 轮数据下载 ---"
 
 URLS="\
-https://p16-oec-ttp.tiktokcdn-us.com/...jpeg \
-https://p19-oec-ttp.tiktokcdn-us.com/...jpeg \
-https://p16-oec-ttp-useast5.ttcdn-us.com/...jpeg \
-https://p19-oec-ttp-useast5.ttcdn-us.com/...jpeg"
+https://p16-oec-ttp.tiktokcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/b1c62d6406395542c4d5dc9601347199.JPG~tplv-omjb5zjo8w-origin-jpeg.jpeg \
+https://p19-oec-ttp.tiktokcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/b1c62d6406395542c4d5dc9601347199.JPG~tplv-omjb5zjo8w-origin-jpeg.jpeg \
+https://p16-oec-ttp-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/b1c62d6406395542c4d5dc9601347199.JPG~tplv-omjb5zjo8w-origin-jpeg.jpeg \
+https://p19-oec-ttp-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/b1c62d6406395542c4d5dc9601347199.JPG~tplv-omjb5zjo8w-origin-jpeg.jpeg"
 
 logdir=$(mktemp -d)
 trap "rm -rf $logdir" EXIT
