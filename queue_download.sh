@@ -16,7 +16,7 @@ https://p19-oec-ttp-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/b1c62d64063
 # 初始化統計變數
 declare_variables() {
   for url in $URLS; do
-    key=$(basename "$url" | tr -c 'a-zA-Z0-9_' '_')
+    key=$(echo "$url" | base64 | tr -d '=/' | cut -c1-16)
     eval "time_total_$key=0"
     eval "speed_total_$key=0"
     eval "count_ok_$key=0"
@@ -43,7 +43,7 @@ while [ "$i" -le "$count" ]; do
       echo "平均速度: $speed bytes/s"
       echo "下载时间: $time 秒"
 
-      key=$(basename "$url" | tr -c 'a-zA-Z0-9_' '_')
+      key=$(echo "$url" | base64 | tr -d '=/' | cut -c1-16)
       eval current_time=\${time_total_$key:-0}
       eval current_speed=\${speed_total_$key:-0}
       eval current_count=\${count_ok_$key:-0}
@@ -76,11 +76,16 @@ done
 
 # 統計輸出
 echo "\n============= 每个 URL 平均统计 ============="
+total_ok=0
+url_count=0
 for url in $URLS; do
-  key=$(basename "$url" | tr -c 'a-zA-Z0-9_' '_')
+  key=$(echo "$url" | base64 | tr -d '=/' | cut -c1-16)
   eval sum_time=\${time_total_$key:-0}
   eval sum_speed=\${speed_total_$key:-0}
   eval ok_count=\${count_ok_$key:-0}
+
+  total_ok=$((total_ok + ok_count))
+  url_count=$((url_count + 1))
 
   if [ "$ok_count" -gt 0 ]; then
     avg_time=$(awk "BEGIN {printf \"%.3f\", $sum_time / $ok_count}")
@@ -95,4 +100,5 @@ for url in $URLS; do
     echo "未成功下载，跳过统计"
     echo "----------------------------------------"
   fi
-  done
+
+done
