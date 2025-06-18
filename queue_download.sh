@@ -15,7 +15,7 @@ https://p19-oec-ttp-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/b1c62d64063
 
 # 初始化統計變數
 for url in $URLS; do
-  key=$(echo "$url" | md5sum | cut -d ' ' -f1)
+  key=$(basename "$url")
   eval "time_total_$key=0"
   eval "speed_total_$key=0"
   eval "count_ok_$key=0"
