@@ -17,14 +17,10 @@ https://p19-oec-ttp.tiktokcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/b1c62d640639554
 https://p16-oec-ttp-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/b1c62d6406395542c4d5dc9601347199.JPG~tplv-omjb5zjo8w-origin-jpeg.jpeg \
 https://p19-oec-ttp-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/b1c62d6406395542c4d5dc9601347199.JPG~tplv-omjb5zjo8w-origin-jpeg.jpeg"
 
-# 初始化統計變數（避免 base64 導致不合法變數名）
-declare_key() {
-  echo "$1" | openssl dgst -sha1 | awk '{print $2}'
-}
-
+# 初始化統計變數（兼容 POSIX shell）
 declare_all_vars() {
   for url in $URLS; do
-    key=$(declare_key "$url")
+    key=$(echo "$url" | sed 's/[^a-zA-Z0-9]/_/g')
     eval time_total_$key=0
     eval speed_total_$key=0
     eval count_ok_$key=0
@@ -51,14 +47,14 @@ while [ "$i" -le "$count" ]; do
       echo "平均速度: $speed bytes/s"
       echo "下载时间: $time 秒"
 
-      key=$(declare_key "$url")
-      eval current_time=\$(echo \$time_total_$key)
-      eval current_speed=\$(echo \$speed_total_$key)
-      eval current_count=\$(echo \$count_ok_$key)
+      key=$(echo "$url" | sed 's/[^a-zA-Z0-9]/_/g')
+      eval current_time=\$time_total_$key
+      eval current_speed=\$speed_total_$key
+      eval current_count=\$count_ok_$key
 
       total_time=$(awk "BEGIN {print $current_time + $time}")
       total_speed=$(awk "BEGIN {print $current_speed + $speed}")
-      total_count=$((current_count + 1))
+      total_count=$(($current_count + 1))
 
       eval time_total_$key=$total_time
       eval speed_total_$key=$total_speed
@@ -81,7 +77,7 @@ while [ "$i" -le "$count" ]; do
     echo "----------------------------------------"
   done
 
-  i=$((i + 1))
+  i=$(($i + 1))
 done
 
 # 統計輸出
@@ -90,13 +86,13 @@ total_ok=0
 url_count=0
 
 for url in $URLS; do
-  key=$(declare_key "$url")
-  eval sum_time=\$(echo \$time_total_$key)
-  eval sum_speed=\$(echo \$speed_total_$key)
-  eval ok_count=\$(echo \$count_ok_$key)
+  key=$(echo "$url" | sed 's/[^a-zA-Z0-9]/_/g')
+  eval sum_time=\$time_total_$key
+  eval sum_speed=\$speed_total_$key
+  eval ok_count=\$count_ok_$key
 
-  total_ok=$((total_ok + ok_count))
-  url_count=$((url_count + 1))
+  total_ok=$(($total_ok + $ok_count))
+  url_count=$(($url_count + 1))
 
   if [ "$ok_count" -gt 0 ]; then
     avg_time=$(awk "BEGIN {printf \"%.3f\", $sum_time / $ok_count}")
