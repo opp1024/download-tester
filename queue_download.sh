@@ -1,4 +1,4 @@
-#!/bin/sh
+ #!/bin/sh
 
 # 获取第一个参数，作为循环次数
 count="$1"
@@ -17,14 +17,21 @@ https://p19-oec-ttp.tiktokcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/b1c62d640639554
 https://p16-oec-ttp-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/b1c62d6406395542c4d5dc9601347199.JPG~tplv-omjb5zjo8w-origin-jpeg.jpeg \
 https://p19-oec-ttp-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/b1c62d6406395542c4d5dc9601347199.JPG~tplv-omjb5zjo8w-origin-jpeg.jpeg"
 
-# 初始化統計變數
-for url in $URLS; do
-  key=$(echo "$url" | base64 | tr -d '=/' | cut -c1-16)
-  eval "time_total_$key=0"
-  eval "speed_total_$key=0"
-  eval "count_ok_$key=0"
+# 初始化統計變數（避免 base64 導致不合法變數名）
+declare_key() {
+  echo "$1" | openssl dgst -sha1 | awk '{print $2}'
+}
 
-done
+declare_all_vars() {
+  for url in $URLS; do
+    key=$(declare_key "$url")
+    eval time_total_$key=0
+    eval speed_total_$key=0
+    eval count_ok_$key=0
+  done
+}
+
+declare_all_vars
 
 i=1
 while [ "$i" -le "$count" ]; do
@@ -32,11 +39,8 @@ while [ "$i" -le "$count" ]; do
 
   for url in $URLS; do
     echo "下载中: $url"
-
-    result=$(curl -m 30 -s -o ./tmp_output -D ./tmp_header -L "$url" \
-      -w "%{speed_download} %{time_total}")
+    result=$(curl -m 30 -s -o ./tmp_output -D ./tmp_header -L "$url" -w "%{speed_download} %{time_total}")
     code=$?
-
     echo "URL: $url"
 
     if [ "$code" = "0" ]; then
@@ -47,18 +51,18 @@ while [ "$i" -le "$count" ]; do
       echo "平均速度: $speed bytes/s"
       echo "下载时间: $time 秒"
 
-      key=$(echo "$url" | base64 | tr -d '=/' | cut -c1-16)
-      eval current_time=\${time_total_$key:-0}
-      eval current_speed=\${speed_total_$key:-0}
-      eval current_count=\${count_ok_$key:-0}
+      key=$(declare_key "$url")
+      eval current_time=\$(echo \$time_total_$key)
+      eval current_speed=\$(echo \$speed_total_$key)
+      eval current_count=\$(echo \$count_ok_$key)
 
       total_time=$(awk "BEGIN {print $current_time + $time}")
       total_speed=$(awk "BEGIN {print $current_speed + $speed}")
       total_count=$((current_count + 1))
 
-      eval "time_total_$key=$total_time"
-      eval "speed_total_$key=$total_speed"
-      eval "count_ok_$key=$total_count"
+      eval time_total_$key=$total_time
+      eval speed_total_$key=$total_speed
+      eval count_ok_$key=$total_count
 
       st=$(grep -i "server-timing:" ./tmp_header)
       if [ -n "$st" ]; then
@@ -86,10 +90,10 @@ total_ok=0
 url_count=0
 
 for url in $URLS; do
-  key=$(echo "$url" | base64 | tr -d '=/' | cut -c1-16)
-  eval sum_time=\${time_total_$key:-0}
-  eval sum_speed=\${speed_total_$key:-0}
-  eval ok_count=\${count_ok_$key:-0}
+  key=$(declare_key "$url")
+  eval sum_time=\$(echo \$time_total_$key)
+  eval sum_speed=\$(echo \$speed_total_$key)
+  eval ok_count=\$(echo \$count_ok_$key)
 
   total_ok=$((total_ok + ok_count))
   url_count=$((url_count + 1))
