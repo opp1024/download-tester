@@ -1,31 +1,5 @@
 #!/bin/sh
 
-# 获取第一个参数，作为循环次数
-count="$1"
-
-# 如果未传参数，默认执行 5 次
-if [ -z "$count" ]; then
-  count=20
-fi
-
-echo "--- 脚本将执行 $count 轮数据下载 ---"
-
-# 用空格分隔的 URL 字符串
-URLS="\
-https://p16-oec-ttp.tiktokcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/b1c62d6406395542c4d5dc9601347199.JPG~tplv-omjb5zjo8w-origin-jpeg.jpeg \
-https://p19-oec-ttp.tiktokcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/b1c62d6406395542c4d5dc9601347199.JPG~tplv-omjb5zjo8w-origin-jpeg.jpeg \
-https://p16-oec-ttp-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/b1c62d6406395542c4d5dc9601347199.JPG~tplv-omjb5zjo8w-origin-jpeg.jpeg \
-https://p19-oec-ttp-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/b1c62d6406395542c4d5dc9601347199.JPG~tplv-omjb5zjo8w-origin-jpeg.jpeg"
-
-i=1
-while [ "$i" -le "$count" ]; do
-  echo "============= 第 $i 轮下载 ============="
-
-  for url in $URLS; do
-    echo "下载中: $url"
-
-#!/bin/sh
-
 count="$1"
 if [ -z "$count" ]; then
   count=20
@@ -39,7 +13,7 @@ https://p19-oec-ttp.tiktokcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/b1c62d640639554
 https://p16-oec-ttp-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/b1c62d6406395542c4d5dc9601347199.JPG~tplv-omjb5zjo8w-origin-jpeg.jpeg \
 https://p19-oec-ttp-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/b1c62d6406395542c4d5dc9601347199.JPG~tplv-omjb5zjo8w-origin-jpeg.jpeg"
 
-# 初始化統計用的變數
+# 初始化統計變數
 for url in $URLS; do
   key=$(echo "$url" | md5sum | cut -d ' ' -f1)
   eval "time_total_$key=0"
@@ -88,9 +62,7 @@ while [ "$i" -le "$count" ]; do
   i=$((i + 1))
 done
 
-# ========================
-# 統計輸出每個 URL 的平均速度與時間
-# ========================
+# 統計輸出
 echo "\n============= 每个 URL 平均统计 ============="
 for url in $URLS; do
   key=$(echo "$url" | md5sum | cut -d ' ' -f1)
