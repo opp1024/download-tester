@@ -39,7 +39,7 @@ while [ "$i" -le "$count" ]; do
       echo "平均速度: $speed bytes/s"
       echo "下载时间: $time 秒"
 
-      key=$(echo "$url" | md5sum | cut -d ' ' -f1)
+      key=$(echo "$url" | base64 | tr -d '=/' | cut -c1-16)
       eval "current_time=\$time_total_$key"
       eval "current_speed=\$speed_total_$key"
       eval "current_count=\$count_ok_$key"
@@ -68,7 +68,7 @@ done
 # 統計輸出
 echo "\n============= 每个 URL 平均统计 ============="
 for url in $URLS; do
-  key=$(echo "$url" | md5sum | cut -d ' ' -f1)
+  key=$(echo "$url" | base64 | tr -d '=/' | cut -c1-16)
   eval "sum_time=\$time_total_$key"
   eval "sum_speed=\$speed_total_$key"
   eval "ok_count=\$count_ok_$key"
