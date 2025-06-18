@@ -40,9 +40,12 @@ while [ "$i" -le "$count" ]; do
       echo "下载时间: $time 秒"
 
       key=$(echo "$url" | md5sum | cut -d ' ' -f1)
-      eval "speed_total_$key=\$(awk \"BEGIN {print speed_total_$key + $speed}\")"
-      eval "time_total_$key=\$(awk \"BEGIN {print time_total_$key + $time}\")"
-      eval "count_ok_$key=\$((count_ok_$key + 1))"
+      eval "current_time=\$time_total_$key"
+      eval "current_speed=\$speed_total_$key"
+      eval "current_count=\$count_ok_$key"
+      eval "time_total_$key=\$(awk \"BEGIN {print $current_time + $time}\")"
+      eval "speed_total_$key=\$(awk \"BEGIN {print $current_speed + $speed}\")"
+      eval "count_ok_$key=\$((current_count + 1))"
 
       st=$(grep -i "server-timing:" ./tmp_header)
       if [ -n "$st" ]; then
