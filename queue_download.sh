@@ -1,12 +1,16 @@
 #!/bin/sh
 
+# 获取第一个参数，作为循环次数
 count="$1"
+
+# 如果未传参数，默认执行 20 次
 if [ -z "$count" ]; then
   count=20
 fi
 
 echo "--- 脚本将执行 $count 轮数据下载 ---"
 
+# 用空格分隔的 URL 字符串
 URLS="\
 https://p16-oec-ttp.tiktokcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/b1c62d6406395542c4d5dc9601347199.JPG~tplv-omjb5zjo8w-origin-jpeg.jpeg \
 https://p19-oec-ttp.tiktokcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/b1c62d6406395542c4d5dc9601347199.JPG~tplv-omjb5zjo8w-origin-jpeg.jpeg \
@@ -14,25 +18,25 @@ https://p16-oec-ttp-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/b1c62d64063
 https://p19-oec-ttp-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/b1c62d6406395542c4d5dc9601347199.JPG~tplv-omjb5zjo8w-origin-jpeg.jpeg"
 
 # 初始化統計變數
-declare_variables() {
-  for url in $URLS; do
-    key=$(echo "$url" | base64 | tr -d '=/' | cut -c1-16)
-    eval "time_total_$key=0"
-    eval "speed_total_$key=0"
-    eval "count_ok_$key=0"
-  done
-}
+for url in $URLS; do
+  key=$(echo "$url" | base64 | tr -d '=/' | cut -c1-16)
+  eval "time_total_$key=0"
+  eval "speed_total_$key=0"
+  eval "count_ok_$key=0"
 
-declare_variables
+done
 
 i=1
 while [ "$i" -le "$count" ]; do
   echo "============= 第 $i 轮下载 ============="
+
   for url in $URLS; do
     echo "下载中: $url"
+
     result=$(curl -m 30 -s -o ./tmp_output -D ./tmp_header -L "$url" \
       -w "%{speed_download} %{time_total}")
     code=$?
+
     echo "URL: $url"
 
     if [ "$code" = "0" ]; then
@@ -69,8 +73,10 @@ while [ "$i" -le "$count" ]; do
         echo "❌ 下载失败，curl 返回码: $code"
       fi
     fi
+
     echo "----------------------------------------"
   done
+
   i=$((i + 1))
 done
 
@@ -78,6 +84,7 @@ done
 echo "\n============= 每个 URL 平均统计 ============="
 total_ok=0
 url_count=0
+
 for url in $URLS; do
   key=$(echo "$url" | base64 | tr -d '=/' | cut -c1-16)
   eval sum_time=\${time_total_$key:-0}
