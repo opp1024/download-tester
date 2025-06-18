@@ -39,7 +39,7 @@ while [ "$i" -le "$count" ]; do
       echo "平均速度: $speed bytes/s"
       echo "下载时间: $time 秒"
 
-      key=$(echo "$url" | md5sum | cut -d ' ' -f1)
+      key=$(basename "$url" | tr -c 'a-zA-Z0-9_' '_')
       eval "current_time=\$time_total_$key"
       eval "current_speed=\$speed_total_$key"
       eval "current_count=\$count_ok_$key"
