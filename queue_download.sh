@@ -40,9 +40,10 @@ while [ "$i" -le "$count" ]; do
       echo "下载时间: $time 秒"
 
       key=$(basename "$url" | tr -c 'a-zA-Z0-9_' '_')
-      eval "current_time=\$time_total_$key"
-      eval "current_speed=\$speed_total_$key"
-      eval "current_count=\$count_ok_$key"
+      eval "current_time=\${time_total_$key:-0}"
+      eval "current_speed=\${speed_total_$key:-0}"
+      eval "current_count=\${count_ok_$key:-0}"
+
       eval "time_total_$key=\$(awk \"BEGIN {print $current_time + $time}\")"
       eval "speed_total_$key=\$(awk \"BEGIN {print $current_speed + $speed}\")"
       eval "count_ok_$key=\$((current_count + 1))"
